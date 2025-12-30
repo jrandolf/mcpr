@@ -13,7 +13,7 @@ import (
 func TestGetClients(t *testing.T) {
 	clients := GetClients()
 
-	expectedClients := []string{"claude-desktop", "claude-code", "cursor", "windsurf", "zed", "cline", "vscode", "continue", "codex", "gemini", "kilo-code", "zencoder"}
+	expectedClients := []string{"claude-desktop", "claude-code", "cursor", "windsurf", "zed", "opencode", "cline", "vscode", "continue", "codex", "gemini", "kilo-code", "zencoder"}
 
 	for _, name := range expectedClients {
 		if _, ok := clients[name]; !ok {
@@ -51,8 +51,8 @@ func TestGetClient_NotFound(t *testing.T) {
 func TestListClientNames(t *testing.T) {
 	names := ListClientNames()
 
-	if len(names) != 12 {
-		t.Errorf("expected 12 client names, got %d", len(names))
+	if len(names) != 13 {
+		t.Errorf("expected 13 client names, got %d", len(names))
 	}
 
 	// Check that all expected names are present
@@ -62,6 +62,7 @@ func TestListClientNames(t *testing.T) {
 		"cursor":         false,
 		"windsurf":       false,
 		"zed":            false,
+		"opencode":       false,
 		"cline":          false,
 		"vscode":         false,
 		"continue":       false,
@@ -506,6 +507,7 @@ func TestClientDisplayNames(t *testing.T) {
 		{"cursor", "Cursor"},
 		{"windsurf", "Windsurf"},
 		{"zed", "Zed"},
+		{"opencode", "OpenCode"},
 		{"cline", "Cline"},
 		{"vscode", "VS Code (Copilot)"},
 		{"continue", "Continue"},
@@ -606,6 +608,7 @@ func TestClientSupportsLocal(t *testing.T) {
 		{"cursor", true},
 		{"windsurf", true},
 		{"zed", false},
+		{"opencode", true},
 		{"cline", false},
 		{"vscode", true},
 		{"continue", false},
@@ -1416,5 +1419,233 @@ func TestSyncIdempotency_VSCode(t *testing.T) {
 
 	if string(firstContent) != string(secondContent) {
 		t.Errorf("VS Code sync is not idempotent:\nFirst:\n%s\n\nSecond:\n%s", firstContent, secondContent)
+	}
+}
+
+func TestOpenCodeConfigPath(t *testing.T) {
+	home, _ := os.UserHomeDir()
+	expected := filepath.Join(home, ".config", "opencode", "opencode.json")
+
+	path, err := getOpenCodeConfigPathImpl()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if path != expected {
+		t.Errorf("expected path %q, got %q", expected, path)
+	}
+}
+
+func TestOpenCodeLocalPath(t *testing.T) {
+	cwd, _ := os.Getwd()
+	expected := filepath.Join(cwd, "opencode.json")
+
+	path, err := getOpenCodeLocalPathImpl()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if path != expected {
+		t.Errorf("expected path %q, got %q", expected, path)
+	}
+}
+
+func TestSyncToOpenCode(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "mcpr-test-*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	configPath := filepath.Join(tempDir, "opencode.json")
+
+	servers := []config.MCPServer{
+		{
+			Name:    "test-server",
+			Type:    "stdio",
+			Command: "npx",
+			Args:    []string{"-y", "test-package"},
+			Env:     map[string]string{"KEY": "value"},
+		},
+		{
+			Name:    "http-server",
+			Type:    "http",
+			URL:     "https://example.com/mcp",
+			Headers: map[string]string{"Authorization": "Bearer token"},
+		},
+	}
+
+	err = syncToOpenCode(servers, configPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify
+	data, _ := os.ReadFile(configPath)
+
+	var settings map[string]any
+	json.Unmarshal(data, &settings)
+
+	mcp, ok := settings["mcp"].(map[string]any)
+	if !ok {
+		t.Fatal("expected 'mcp' to be present")
+	}
+
+	if len(mcp) != 2 {
+		t.Errorf("expected 2 servers, got %d", len(mcp))
+	}
+
+	// Check local server (stdio)
+	localServer, ok := mcp["test-server"].(map[string]any)
+	if !ok {
+		t.Fatal("expected 'test-server' to be present")
+	}
+	if localServer["type"] != "local" {
+		t.Errorf("expected type 'local', got %v", localServer["type"])
+	}
+	command, ok := localServer["command"].([]any)
+	if !ok {
+		t.Fatal("expected 'command' to be an array")
+	}
+	if len(command) != 3 {
+		t.Errorf("expected command array length 3, got %d", len(command))
+	}
+	if command[0] != "npx" {
+		t.Errorf("expected command[0] 'npx', got %v", command[0])
+	}
+	if command[1] != "-y" {
+		t.Errorf("expected command[1] '-y', got %v", command[1])
+	}
+	if command[2] != "test-package" {
+		t.Errorf("expected command[2] 'test-package', got %v", command[2])
+	}
+	environment, ok := localServer["environment"].(map[string]any)
+	if !ok {
+		t.Fatal("expected 'environment' to be present")
+	}
+	if environment["KEY"] != "value" {
+		t.Errorf("expected environment KEY 'value', got %v", environment["KEY"])
+	}
+
+	// Check remote server (http)
+	remoteServer, ok := mcp["http-server"].(map[string]any)
+	if !ok {
+		t.Fatal("expected 'http-server' to be present")
+	}
+	if remoteServer["type"] != "remote" {
+		t.Errorf("expected type 'remote', got %v", remoteServer["type"])
+	}
+	if remoteServer["url"] != "https://example.com/mcp" {
+		t.Errorf("expected url 'https://example.com/mcp', got %v", remoteServer["url"])
+	}
+	headers, ok := remoteServer["headers"].(map[string]any)
+	if !ok {
+		t.Fatal("expected 'headers' to be present")
+	}
+	if headers["Authorization"] != "Bearer token" {
+		t.Errorf("expected Authorization header 'Bearer token', got %v", headers["Authorization"])
+	}
+}
+
+func TestSyncToOpenCode_PreservesOtherSettings(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "mcpr-test-*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	configPath := filepath.Join(tempDir, "opencode.json")
+
+	// Create existing settings
+	existingSettings := map[string]any{
+		"$schema": "https://opencode.ai/config.json",
+		"theme":   "dark",
+		"mcp": map[string]any{
+			"existing-server": map[string]any{
+				"type":    "local",
+				"command": []string{"node", "old.js"},
+			},
+		},
+	}
+	data, _ := json.Marshal(existingSettings)
+	os.WriteFile(configPath, data, 0o644)
+
+	servers := []config.MCPServer{
+		{Name: "new-server", Command: "npx"},
+	}
+
+	err = syncToOpenCode(servers, configPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify
+	data, _ = os.ReadFile(configPath)
+	var settings map[string]any
+	json.Unmarshal(data, &settings)
+
+	// Check other settings preserved
+	if settings["$schema"] != "https://opencode.ai/config.json" {
+		t.Error("expected '$schema' to be preserved")
+	}
+	if settings["theme"] != "dark" {
+		t.Error("expected 'theme' to be preserved")
+	}
+
+	// Check mcp replaced
+	mcp := settings["mcp"].(map[string]any)
+	if len(mcp) != 1 {
+		t.Errorf("expected 1 server, got %d", len(mcp))
+	}
+
+	if _, ok := mcp["existing-server"]; ok {
+		t.Error("expected 'existing-server' to be replaced")
+	}
+
+	if _, ok := mcp["new-server"]; !ok {
+		t.Error("expected 'new-server' to be present")
+	}
+}
+
+func TestSyncIdempotency_OpenCode(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "mcpr-test-*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	configPath := filepath.Join(tempDir, "opencode.json")
+
+	servers := []config.MCPServer{
+		{
+			Name:    "server-a",
+			Command: "cmd-a",
+			Args:    []string{"arg1", "arg2"},
+			Env:     map[string]string{"KEY_Z": "val_z", "KEY_A": "val_a"},
+		},
+		{
+			Name:    "server-b",
+			Command: "cmd-b",
+		},
+	}
+
+	// First sync
+	err = syncToOpenCode(servers, configPath)
+	if err != nil {
+		t.Fatalf("first sync failed: %v", err)
+	}
+
+	firstContent, _ := os.ReadFile(configPath)
+
+	// Second sync
+	err = syncToOpenCode(servers, configPath)
+	if err != nil {
+		t.Fatalf("second sync failed: %v", err)
+	}
+
+	secondContent, _ := os.ReadFile(configPath)
+
+	if string(firstContent) != string(secondContent) {
+		t.Errorf("OpenCode sync is not idempotent:\nFirst:\n%s\n\nSecond:\n%s", firstContent, secondContent)
 	}
 }
