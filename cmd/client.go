@@ -38,6 +38,7 @@ Supported clients:
   - cursor          : Cursor editor
   - windsurf        : Windsurf editor
   - zed             : Zed editor
+  - opencode        : OpenCode CLI
   - cline           : Cline VS Code extension
   - vscode          : VS Code with GitHub Copilot
   - continue        : Continue (VS Code/JetBrains)
