@@ -300,6 +300,8 @@ MCPR reads each client's existing configuration and updates only the MCP server 
 
 AI agents maintain this repository. Start with a [GitHub Discussion](../../discussions/new) and wait for a maintainer to review your proposal. If we accept it, a Mathematic maintainer or agent will open the pull request. GitHub restricts pull request creation to Mathematic maintainers and repository collaborators with write, maintain, or admin access, plus authorized maintenance agents.
 
+When Mathematic implements a proposal, the implementation pull request will link to the Discussion and credit its original author.
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process.
 
 ## License

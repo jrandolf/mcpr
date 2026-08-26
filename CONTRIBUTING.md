@@ -8,4 +8,6 @@ AI agents maintain this repository. Reviewing an unsolicited pull request takes 
 2. Wait for a maintainer to review the discussion.
 3. If we accept the proposal, a Mathematic maintainer or agent will open the pull request.
 
+When Mathematic implements a proposal, the implementation pull request will link to the Discussion and credit its original author.
+
 GitHub restricts pull request creation to Mathematic maintainers and repository collaborators with write, maintain, or admin access, plus authorized maintenance agents.
