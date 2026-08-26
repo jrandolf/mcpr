@@ -4,7 +4,7 @@ AI agents maintain this repository. Reviewing an unsolicited pull request takes 
 
 ## Propose a change
 
-1. [Start a GitHub Discussion](../../discussions/new) describing the problem and your proposed change.
+1. [Start a GitHub Discussion](https://github.com/mathematic-inc/mcpr/discussions/new) describing the problem and your proposed change.
 2. Wait for a maintainer to review the discussion.
 3. If we accept the proposal, a Mathematic maintainer or agent will open the pull request.
 

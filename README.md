@@ -56,7 +56,7 @@ Add new MCP server configurations.
 
 #### `mcpr add stdio [command] [args...]`
 
-Add a stdio-based MCP server that communicates via stdin/stdout.
+Add a stdio-based MCP server that communicates through standard input and output.
 
 ```bash
 # Basic usage
@@ -73,6 +73,7 @@ mcpr add stdio --local npx my-project-server
 ```
 
 **Flags:**
+
 - `--name, -n` - Custom name for the server (defaults to command name)
 - `--env, -e` - Environment variables in KEY=VALUE format (repeatable)
 - `--local, -l` - Add to local project configuration
@@ -90,6 +91,7 @@ mcpr add http --name my-api --header "Authorization=Bearer token" https://api.ex
 ```
 
 **Flags:**
+
 - `--name, -n` - Custom name for the server (defaults to URL host)
 - `--header, -H` - HTTP headers in Key=Value format (repeatable)
 - `--local, -l` - Add to local project configuration
@@ -128,6 +130,7 @@ mcpr client sync claude-code --local
 ```
 
 **Flags:**
+
 - `--servers, -s` - Comma-separated list of specific servers to sync
 - `--local, -l` - Use local client configuration
 
@@ -141,6 +144,7 @@ mcpr client remove claude-code --local
 ```
 
 **Flags:**
+
 - `--local, -l` - Remove from local configuration
 
 ### `mcpr list`
@@ -157,6 +161,7 @@ mcpr list -c
 ```
 
 **Flags:**
+
 - `--clients, -c` - List supported clients instead of servers
 
 ## Supported Clients
@@ -298,7 +303,7 @@ MCPR reads each client's existing configuration and updates only the MCP server 
 
 ## Contributing
 
-AI agents maintain this repository. Start with a [GitHub Discussion](../../discussions/new) and wait for a maintainer to review your proposal. If we accept it, a Mathematic maintainer or agent will open the pull request. GitHub restricts pull request creation to Mathematic maintainers and repository collaborators with write, maintain, or admin access, plus authorized maintenance agents.
+AI agents maintain this repository. Start with a [GitHub Discussion](https://github.com/mathematic-inc/mcpr/discussions/new) and wait for a maintainer to review your proposal. If we accept it, a Mathematic maintainer or agent will open the pull request. GitHub restricts pull request creation to Mathematic maintainers and repository collaborators with write, maintain, or admin access, plus authorized maintenance agents.
 
 When Mathematic implements a proposal, the implementation pull request will link to the Discussion and credit its original author.
 
