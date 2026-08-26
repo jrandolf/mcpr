@@ -296,6 +296,12 @@ mcpr client sync cursor --servers filesystem,git
 
 MCPR reads each client's existing configuration and updates only the MCP server sections, preserving all other settings.
 
+## Contributing
+
+AI agents maintain this repository. Start with a [GitHub Discussion](../../discussions/new) and wait for a maintainer to review your proposal. If we accept it, a Mathematic maintainer or agent will open the pull request. We automatically close unsolicited pull requests. Organization members, repository collaborators, and approved maintenance bots may open them.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process.
+
 ## License
 
 Apache-2.0
