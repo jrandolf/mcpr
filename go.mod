@@ -1,6 +1,6 @@
 module github.com/mathematic-inc/mcpr
 
-go 1.25.5
+go 1.18
 
 require github.com/spf13/cobra v1.10.2
 

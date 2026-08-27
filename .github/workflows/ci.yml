@@ -28,5 +28,7 @@ jobs:
           persist-credentials: false
       - name: Install tools
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      - name: Verify Go 1.18
+        run: test "$(go env GOVERSION)" = "go1.18.10"
       - name: Run checks
         run: hk check --all --slow
