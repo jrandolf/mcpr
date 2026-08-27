@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/mathematic-inc/mcpr/compare/v0.2.2...v0.2.3) (2026-08-27)
+
+
+### Bug Fixes
+
+* Support Go 1.18 ([882a907](https://github.com/mathematic-inc/mcpr/commit/882a907dc6236a699bdfd0c4e52dedd1e75569cd))
+
 ## [0.2.2](https://github.com/mathematic-inc/mcpr/compare/v0.2.1...v0.2.2) (2026-03-11)
 
 ### Bug Fixes
