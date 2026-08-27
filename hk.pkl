@@ -215,7 +215,7 @@ local checks = new Mapping<String, Step> {
     glob = goFiles
   }
   ["go-mod-tidy"] = (Builtins.gomod_tidy) {
-    check = "mise exec -- go mod tidy -diff"
+    check = "mise exec -- go mod tidy && git diff --exit-code -- go.mod go.sum"
     fix = "mise exec -- go mod tidy"
     depends = "go-fmt"
   }
