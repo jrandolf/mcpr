@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4](https://github.com/mathematic-inc/mcpr/compare/v0.2.3...v0.2.4) (2026-09-05)
+
+
+### Bug Fixes
+
+* **ci:** Harden release workflows and repository checks ([#21](https://github.com/mathematic-inc/mcpr/issues/21)) ([ce02701](https://github.com/mathematic-inc/mcpr/commit/ce02701f3704dde2434ca5ccea15fb26c23fee00))
+
 ## [0.2.3](https://github.com/mathematic-inc/mcpr/compare/v0.2.2...v0.2.3) (2026-08-27)
 
 
